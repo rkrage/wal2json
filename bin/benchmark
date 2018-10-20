@@ -1,0 +1,152 @@
+#!/usr/bin/env bash
+
+REPLICA_IDENTITY="FULL"
+
+READ_OPTIONS="-o write-in-chunks=1 \
+  -o include-xids=1 \
+  -o include-lsn=1 \
+  -o include-timestamp=1"
+
+make clean && make && make install
+
+psql -U postgres -t -c "CHECKPOINT" -o /dev/null
+
+pg_recvlogical -d pgbench -U postgres --slot test_slot_a --drop-slot
+pg_recvlogical -d pgbench -U postgres --slot test_slot_b --drop-slot
+
+psql -U postgres -t <<-SQL
+  DROP DATABASE pgbench;
+  CREATE DATABASE pgbench;
+SQL
+
+pgbench -U postgres -i -s 5 pgbench
+
+psql -U postgres -d pgbench -t <<-SQL
+  ALTER TABLE pgbench_history ADD COLUMN extra_a TEXT DEFAULT md5(random()::text);
+  ALTER TABLE pgbench_history ADD COLUMN extra_b TEXT DEFAULT md5(random()::text);
+  ALTER TABLE pgbench_history ADD COLUMN extra_c TEXT DEFAULT md5(random()::text);
+  ALTER TABLE pgbench_history ADD COLUMN extra_d TEXT DEFAULT md5(random()::text);
+  ALTER TABLE pgbench_history ADD COLUMN extra_e TEXT DEFAULT md5(random()::text);
+  ALTER TABLE pgbench_history ADD COLUMN extra_f TEXT DEFAULT md5(random()::text);
+  ALTER TABLE pgbench_history ADD COLUMN extra_h TEXT DEFAULT md5(random()::text);
+  ALTER TABLE pgbench_history ADD COLUMN extra_i TEXT DEFAULT md5(random()::text);
+  ALTER TABLE pgbench_history ADD COLUMN extra_j TEXT DEFAULT md5(random()::text);
+  ALTER TABLE pgbench_history ADD COLUMN extra_k TEXT DEFAULT md5(random()::text);
+  ALTER TABLE pgbench_history ADD COLUMN extra_l TEXT DEFAULT md5(random()::text);
+  ALTER TABLE pgbench_history ADD COLUMN extra_m TEXT DEFAULT md5(random()::text);
+  ALTER TABLE pgbench_history ADD COLUMN extra_n TEXT DEFAULT md5(random()::text);
+  ALTER TABLE pgbench_history ADD COLUMN extra_o TEXT DEFAULT md5(random()::text);
+  ALTER TABLE pgbench_history ADD COLUMN extra_p TEXT DEFAULT md5(random()::text);
+  ALTER TABLE pgbench_history ADD COLUMN extra_q TEXT DEFAULT md5(random()::text);
+  ALTER TABLE pgbench_history ADD COLUMN extra_r TEXT DEFAULT md5(random()::text);
+  ALTER TABLE pgbench_history ADD COLUMN pk BIGSERIAL PRIMARY KEY;
+
+  CREATE INDEX history_extra_a_idx on pgbench_history (extra_a);
+  CREATE INDEX history_extra_bc_idx on pgbench_history (extra_b, extra_c);
+  CREATE INDEX history_extra_def_idx on pgbench_history (extra_d, extra_e, extra_f);
+
+  ALTER TABLE pgbench_tellers ADD COLUMN extra_a TEXT DEFAULT md5(random()::text);
+  ALTER TABLE pgbench_tellers ADD COLUMN extra_b TEXT DEFAULT md5(random()::text);
+  ALTER TABLE pgbench_tellers ADD COLUMN extra_c TEXT DEFAULT md5(random()::text);
+  ALTER TABLE pgbench_tellers ADD COLUMN extra_d TEXT DEFAULT md5(random()::text);
+  ALTER TABLE pgbench_tellers ADD COLUMN extra_e TEXT DEFAULT md5(random()::text);
+  ALTER TABLE pgbench_tellers ADD COLUMN extra_f TEXT DEFAULT md5(random()::text);
+  ALTER TABLE pgbench_tellers ADD COLUMN extra_h TEXT DEFAULT md5(random()::text);
+  ALTER TABLE pgbench_tellers ADD COLUMN extra_i TEXT DEFAULT md5(random()::text);
+  ALTER TABLE pgbench_tellers ADD COLUMN extra_j TEXT DEFAULT md5(random()::text);
+  ALTER TABLE pgbench_tellers ADD COLUMN extra_k TEXT DEFAULT md5(random()::text);
+  ALTER TABLE pgbench_tellers ADD COLUMN extra_l TEXT DEFAULT md5(random()::text);
+  ALTER TABLE pgbench_tellers ADD COLUMN extra_m TEXT DEFAULT md5(random()::text);
+  ALTER TABLE pgbench_tellers ADD COLUMN extra_n TEXT DEFAULT md5(random()::text);
+  ALTER TABLE pgbench_tellers ADD COLUMN extra_o TEXT DEFAULT md5(random()::text);
+  ALTER TABLE pgbench_tellers ADD COLUMN extra_p TEXT DEFAULT md5(random()::text);
+  ALTER TABLE pgbench_tellers ADD COLUMN extra_q TEXT DEFAULT md5(random()::text);
+  ALTER TABLE pgbench_tellers ADD COLUMN extra_r TEXT DEFAULT md5(random()::text);
+
+  CREATE INDEX tellers_extra_a_idx on pgbench_tellers (extra_a);
+  CREATE INDEX tellers_extra_bc_idx on pgbench_tellers (extra_b, extra_c);
+  CREATE INDEX tellers_extra_def_idx on pgbench_tellers (extra_d, extra_e, extra_f);
+
+  ALTER TABLE pgbench_accounts ADD COLUMN extra_a TEXT DEFAULT md5(random()::text);
+  ALTER TABLE pgbench_accounts ADD COLUMN extra_b TEXT DEFAULT md5(random()::text);
+  ALTER TABLE pgbench_accounts ADD COLUMN extra_c TEXT DEFAULT md5(random()::text);
+  ALTER TABLE pgbench_accounts ADD COLUMN extra_d TEXT DEFAULT md5(random()::text);
+  ALTER TABLE pgbench_accounts ADD COLUMN extra_e TEXT DEFAULT md5(random()::text);
+  ALTER TABLE pgbench_accounts ADD COLUMN extra_f TEXT DEFAULT md5(random()::text);
+  ALTER TABLE pgbench_accounts ADD COLUMN extra_h TEXT DEFAULT md5(random()::text);
+  ALTER TABLE pgbench_accounts ADD COLUMN extra_i TEXT DEFAULT md5(random()::text);
+  ALTER TABLE pgbench_accounts ADD COLUMN extra_j TEXT DEFAULT md5(random()::text);
+  ALTER TABLE pgbench_accounts ADD COLUMN extra_k TEXT DEFAULT md5(random()::text);
+  ALTER TABLE pgbench_accounts ADD COLUMN extra_l TEXT DEFAULT md5(random()::text);
+  ALTER TABLE pgbench_accounts ADD COLUMN extra_m TEXT DEFAULT md5(random()::text);
+  ALTER TABLE pgbench_accounts ADD COLUMN extra_n TEXT DEFAULT md5(random()::text);
+  ALTER TABLE pgbench_accounts ADD COLUMN extra_o TEXT DEFAULT md5(random()::text);
+  ALTER TABLE pgbench_accounts ADD COLUMN extra_p TEXT DEFAULT md5(random()::text);
+  ALTER TABLE pgbench_accounts ADD COLUMN extra_q TEXT DEFAULT md5(random()::text);
+  ALTER TABLE pgbench_accounts ADD COLUMN extra_r TEXT DEFAULT md5(random()::text);
+
+  CREATE INDEX accounts_extra_a_idx on pgbench_accounts (extra_a);
+  CREATE INDEX accounts_extra_bc_idx on pgbench_accounts (extra_b, extra_c);
+  CREATE INDEX accounts_extra_def_idx on pgbench_accounts (extra_d, extra_e, extra_f);
+
+  ALTER TABLE pgbench_branches ADD COLUMN extra_a TEXT DEFAULT md5(random()::text);
+  ALTER TABLE pgbench_branches ADD COLUMN extra_b TEXT DEFAULT md5(random()::text);
+  ALTER TABLE pgbench_branches ADD COLUMN extra_c TEXT DEFAULT md5(random()::text);
+  ALTER TABLE pgbench_branches ADD COLUMN extra_d TEXT DEFAULT md5(random()::text);
+  ALTER TABLE pgbench_branches ADD COLUMN extra_e TEXT DEFAULT md5(random()::text);
+  ALTER TABLE pgbench_branches ADD COLUMN extra_f TEXT DEFAULT md5(random()::text);
+  ALTER TABLE pgbench_branches ADD COLUMN extra_h TEXT DEFAULT md5(random()::text);
+  ALTER TABLE pgbench_branches ADD COLUMN extra_i TEXT DEFAULT md5(random()::text);
+  ALTER TABLE pgbench_branches ADD COLUMN extra_j TEXT DEFAULT md5(random()::text);
+  ALTER TABLE pgbench_branches ADD COLUMN extra_k TEXT DEFAULT md5(random()::text);
+  ALTER TABLE pgbench_branches ADD COLUMN extra_l TEXT DEFAULT md5(random()::text);
+  ALTER TABLE pgbench_branches ADD COLUMN extra_m TEXT DEFAULT md5(random()::text);
+  ALTER TABLE pgbench_branches ADD COLUMN extra_n TEXT DEFAULT md5(random()::text);
+  ALTER TABLE pgbench_branches ADD COLUMN extra_o TEXT DEFAULT md5(random()::text);
+  ALTER TABLE pgbench_branches ADD COLUMN extra_p TEXT DEFAULT md5(random()::text);
+  ALTER TABLE pgbench_branches ADD COLUMN extra_q TEXT DEFAULT md5(random()::text);
+  ALTER TABLE pgbench_branches ADD COLUMN extra_r TEXT DEFAULT md5(random()::text);
+
+  CREATE INDEX branches_extra_a_idx on pgbench_branches (extra_a);
+  CREATE INDEX branches_extra_bc_idx on pgbench_branches (extra_b, extra_c);
+  CREATE INDEX branches_extra_def_idx on pgbench_branches (extra_d, extra_e, extra_f);
+
+  ALTER TABLE pgbench_history REPLICA IDENTITY $REPLICA_IDENTITY;
+  ALTER TABLE pgbench_tellers REPLICA IDENTITY $REPLICA_IDENTITY;
+  ALTER TABLE pgbench_accounts REPLICA IDENTITY $REPLICA_IDENTITY;
+  ALTER TABLE pgbench_branches REPLICA IDENTITY $REPLICA_IDENTITY;
+SQL
+
+pg_recvlogical -d pgbench -U postgres --slot test_slot_a --create-slot -P wal2json
+pg_recvlogical -d pgbench -U postgres --slot test_slot_b --create-slot -P wal2json
+
+echo -e "\n***** Benchmark results *****"
+pgbench -U postgres -t 25000 -n pgbench
+
+psql -U postgres -d pgbench -o /dev/null -t <<-SQL
+  BEGIN;
+  DELETE FROM pgbench_history;
+  DELETE FROM pgbench_tellers;
+  DELETE FROM pgbench_accounts;
+  DELETE FROM pgbench_branches;
+  COMMIT;
+SQL
+
+psql -U postgres -t -c "CHECKPOINT" -o /dev/null
+
+echo -e "\n***** Total WAL size *****"
+psql -U postgres -d postgres -t <<-SQL
+  SELECT pg_size_pretty(sum(size))
+  FROM pg_ls_waldir();
+SQL
+
+END_LSN=$(psql -U postgres -t -c "SELECT * FROM pg_current_wal_lsn()")
+
+echo -e "\n***** Replication slot read time *****"
+time pg_recvlogical -d pgbench -U postgres --slot test_slot_a -E $END_LSN --start $READ_OPTIONS -f /dev/null
+
+echo -e "\n***** Replication slot output size *****"
+pg_recvlogical -d pgbench -U postgres --slot test_slot_b -E $END_LSN --start $READ_OPTIONS -f output.json
+du -sh output.json | awk '{ print $1 }'
+
+rm output.json
